@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOLFTEK Manager Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7EDE2;
+      --surface: #FFFFFF;
+      --surface2: #F2E4D4;
+      --border: rgba(111,29,27,0.10);
+      --burgundy: #6F1D1B;
+      --burgundy-dk: #4B1211;
+      --gold: #C9A227;
+      --gold-dim: rgba(201,162,39,0.12);
+      --text: #1F1B16;
+      --text-muted: #8B7355;
+      --text-dim: #B8A99A;
+      --danger: #DC2626;
+      --success: #059669;
+      --amber: #C9A227;
+      --topbar-h: 64px;
+      --actionbar-h: 76px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    ::selection {
+      background: rgba(111,29,27,0.18);
+      color: var(--text);
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(111,29,27,0.2) transparent;
+    }
+
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb {
+      background: rgba(111,29,27,0.2);
+      border-radius: 999px;
+    }
+
+    button,
+    input,
+    select { font: inherit; }
+
+    button { border: 0; }
+
+    .topbar {
+      position: fixed;
+      z-index: 50;
+      top: 0;
+      right: 0;
+      left: 0;
+      display: grid;
+      grid-template-columns: minmax(170px, 1fr) auto minmax(260px, 1fr);
+      align-items: center;
+      height: var(--topbar-h);
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border);
+      background: #FFFFFF;
+      box-shadow: 0 1px 12px rgba(111,29,27,0.06);
+    }
+
+    .wordmark {
+      display: inline-grid;
+      gap: 4px;
+      align-content: center;
+      color: transparent;
+      font-size: 0;
+      line-height: 1;
+    }
+
+    .wordmark span { display: none; }
+
+    .wordmark::before {
+      content: "BOTTE";
+      color: var(--burgundy);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+
+    .wordmark::after {
+      content: "MANAGER";
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 26px;
+      min-width: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    .tab {
+      position: relative;
+      height: 42px;
+      padding: 0 2px;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: color 0.2s ease;
+    }
+
+    .tab::after {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--burgundy);
+      content: "";
+      opacity: 0;
+      transform: scaleX(0.55);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .tab:hover,
+    .tab:focus-visible,
+    .tab.active,
+    .tab.is-active { color: var(--burgundy); }
+
+    .tab.active::after,
+    .tab.is-active::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .select-shell {
+      position: relative;
+      width: 138px;
+    }
+
+    .select-shell::after {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid var(--burgundy);
+      border-bottom: 1.5px solid var(--burgundy);
+      pointer-events: none;
+      content: "";
+      transform: translateY(-65%) rotate(45deg);
+    }
+
+    .location-select {
+      width: 100%;
+      height: 38px;
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: 0;
+      background: #FFFFFF;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      padding: 0 32px 0 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .location-select:focus {
+      border-color: var(--burgundy);
+      box-shadow: 0 0 0 4px rgba(111,29,27,0.07);
+    }
+
+    .location-select option {
+      background: #FFFFFF;
+      color: var(--text);
+    }
+
+    .logout {
+      height: 38px;
+      padding: 0 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      transition: color 0.2s ease;
+    }
+
+    .logout:hover,
+    .logout:focus-visible { color: var(--danger); }
+
+    .app {
+      min-height: 100vh;
+      padding-top: var(--topbar-h);
+      background: var(--bg);
+    }
+
+    .view { min-height: calc(100vh - var(--topbar-h)); }
+    .view[hidden] { display: none !important; }
+
+    .schedule-view {
+      display: flex;
+      padding-bottom: var(--actionbar-h);
+      background: var(--bg);
+    }
+
+    .staff-panel {
+      display: flex;
+      flex: 0 0 300px;
+      flex-direction: column;
+      height: calc(100vh - var(--topbar-h) - var(--actionbar-h));
+      border-right: 1px solid var(--border);
+      background: #FFFFFF;
+    }
+
+    .staff-head {
+      padding: 22px 18px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--burgundy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .note {
+      max-width: 138px;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.35;
+      text-align: right;
+    }
+
+    .week-nav {
+      display: grid;
+      grid-template-columns: 34px 1fr 34px;
+      align-items: center;
+      gap: 8px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: var(--surface2);
+    }
+
+    .week-btn {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: #FFFFFF;
+      color: var(--burgundy);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      box-shadow: 0 1px 5px rgba(111,29,27,0.06);
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .week-btn:hover,
+    .week-btn:focus-visible {
+      background: var(--burgundy);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .week-label {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.2px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .employee-list {
+      display: grid;
+      gap: 12px;
+      overflow: auto;
+      padding: 16px 14px 22px;
+    }
+
+    .employee-card,
+    .employee-chip {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: grab;
+      transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .employee-chip { cursor: grab; }
+    .employee-chip:active { cursor: grabbing; }
+    .unavail-bar {
+      background: rgba(111,29,27,0.02);
+      border-radius: 6px;
+    }
+
+    .employee-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(111,29,27,0.04);
+    }
+
+    .employee-card:hover,
+    .employee-chip:hover {
+      border-color: rgba(111,29,27,0.2);
+      background: var(--surface2);
+      box-shadow: 0 4px 18px rgba(111,29,27,0.08);
+    }
+
+    .employee-card.dragging,
+    .employee-chip.dragging {
+      opacity: 0.5;
+      box-shadow: 0 4px 20px rgba(111,29,27,0.15);
+    }
+
+    .employee-card:active,
+    .employee-chip:active { cursor: grabbing; }
+
+    .employee-main { min-width: 0; }
+
+    .employee-name {
+      margin: 0 0 8px;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 21px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--role-color, #8B7355) 14%, white);
+      color: var(--role-color, #8B7355);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+    }
+
+    .availability {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .dot.open { background: var(--success); }
+    .dot.off { background: var(--danger); }
+    .dot.hours { background: var(--gold); }
+
+    .card-tools {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      color: var(--text-dim);
+    }
+
+    .warning {
+      color: var(--gold);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .drag-handle {
+      color: var(--text-dim);
+      font-size: 18px;
+      letter-spacing: -3px;
+      line-height: 1;
+    }
+
+    .mobile-staff {
+      display: none;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 16px 16px 0;
+      scrollbar-width: none;
+    }
+
+    .mobile-staff::-webkit-scrollbar { display: none; }
+
+    .mobile-staff .employee-chip {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 13px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mobile-staff .employee-chip::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--role-color, #8B7355);
+      content: "";
+    }
+
+    .schedule-area {
+      flex: 1;
+      min-width: 0;
+      overflow: auto;
+      background: var(--bg);
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 14px;
+      min-height: calc(100vh - var(--topbar-h) - var(--actionbar-h));
+      padding: 22px;
+      background: var(--bg);
+    }
+
+    .day-column {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.45);
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(111,29,27,0.035);
+      transition: background 0.2s ease, outline-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .day-column.avail-ok    { background: rgba(5,150,105,0.04); }
+    .day-column.avail-off   { background: rgba(220,38,38,0.06);
+                              outline: 1px solid rgba(220,38,38,0.2); }
+    .day-column.avail-dayoff { background: rgba(201,162,39,0.06);
+                               outline: 1px solid rgba(201,162,39,0.25); }
+
+    .shift-card .shift-dayoff-warn {
+      font-size: 10px;
+      color: #F59E0B;
+      margin-bottom: 4px;
+    }
+
+    .day-head,
+    .day-header {
+      display: grid;
+      place-items: center;
+      min-height: 68px;
+      border-bottom: 1px solid var(--border);
+      color: var(--burgundy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      line-height: 1.1;
+      text-align: center;
+      text-transform: uppercase;
+      background: #FFFFFF;
+    }
+
+    .day-head span,
+    .day-num {
+      display: block;
+      margin-top: 5px;
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .day-column.is-today .day-head,
+    .day-column.is-today .day-header,
+    .day-header.today {
+      width: calc(100% - 16px);
+      min-height: 56px;
+      margin: 8px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--burgundy);
+      color: #FFFFFF;
+    }
+
+    .day-column.is-today .day-head span,
+    .day-column.is-today .day-header span,
+    .day-header.today .day-num {
+      color: #FFFFFF;
+    }
+
+    .drop-zone {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 400px;
+      margin: 10px;
+      padding: 12px;
+      border: 1.5px dashed rgba(111,29,27,0.15);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.22);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .drop-zone.is-dragover,
+    .drop-zone.drag-over,
+    .drop-zone:hover {
+      border-color: var(--burgundy);
+      background: rgba(111,29,27,0.03);
+    }
+
+    .shift-card {
+      position: relative;
+      padding: 10px;
+      border: 1px solid rgba(111,29,27,0.08);
+      border-left: 3px solid var(--role-color, #8B7355);
+      border-radius: 10px;
+      background: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(111,29,27,0.08);
+    }
+
+    .shift-name {
+      margin: 0 24px 8px 0;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .remove-shift,
+    .shift-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .remove-shift:hover,
+    .remove-shift:focus-visible,
+    .shift-remove:hover,
+    .shift-remove:focus-visible {
+      background: rgba(220,38,38,0.08);
+      color: var(--danger);
+    }
+
+    .time-row,
+    .shift-times {
+      display: grid;
+      grid-template-columns: 39px 8px 39px;
+      align-items: center;
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .time-row span,
+    .time-sep {
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .time-input {
+      width: 100%;
+      min-width: 0;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 6px;
+      outline: none;
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .time-input:focus { outline: 1.5px solid var(--burgundy); }
+
+    .action-bar {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: var(--actionbar-h);
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      background: #FFFFFF;
+      box-shadow: 0 -1px 18px rgba(111,29,27,0.06);
+    }
+
+    .draft-status {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 46px;
+      min-width: 132px;
+      padding: 0 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .button:hover,
+    .button:focus-visible { transform: translateY(-1px); }
+
+    .button-outline {
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text-muted);
+    }
+
+    .button-outline:hover,
+    .button-outline:focus-visible {
+      border-color: var(--burgundy);
+      color: var(--burgundy);
+    }
+
+    .button-gold {
+      background: var(--burgundy);
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 8px 22px rgba(111,29,27,0.18);
+    }
+
+    .button-gold:hover,
+    .button-gold:focus-visible {
+      background: var(--burgundy-dk);
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      transform: none;
+    }
+
+    .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 700ms linear infinite;
+    }
+
+    .is-loading .spinner { display: inline-block; }
+
+    .content-view {
+      overflow: auto;
+      height: calc(100vh - var(--topbar-h));
+      padding: 32px;
+      background: var(--bg);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .title-group h1 {
+      margin: 0;
+      color: var(--burgundy);
+      font-size: 27px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .title-group p {
+      margin: 8px 0 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 550;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-pill {
+      height: 36px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #FFFFFF;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .filter-pill:hover,
+    .filter-pill:focus-visible,
+    .filter-pill.active,
+    .filter-pill.is-active {
+      border-color: var(--burgundy);
+      background: var(--burgundy);
+      color: #FFFFFF;
+    }
+
+    .requests-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .request-card {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 20px rgba(111,29,27,0.06);
+    }
+
+    .request-top,
+    .req-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .request-name,
+    .req-name {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .status-badge,
+    .req-status-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pending { background: rgba(201,162,39,0.14); color: var(--gold); }
+    .status-approved { background: rgba(5,150,105,0.12); color: var(--success); }
+    .status-denied { background: rgba(220,38,38,0.12); color: var(--danger); }
+
+    .date-range,
+    .req-dates {
+      margin: 0;
+      color: var(--burgundy);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .reason,
+    .req-reason {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .submitted,
+    .req-submitted {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .request-actions,
+    .req-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .decision-btn,
+    .req-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 40px;
+      border-radius: 10px;
+      background: #FFFFFF;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .decision-btn:hover,
+    .decision-btn:focus-visible,
+    .req-btn:hover,
+    .req-btn:focus-visible { transform: translateY(-1px); }
+
+    .decision-approve,
+    .req-btn.approve {
+      border: 1.5px solid var(--success);
+      color: var(--success);
+    }
+
+    .decision-approve:hover,
+    .decision-approve:focus-visible,
+    .req-btn.approve:hover,
+    .req-btn.approve:focus-visible {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .decision-deny,
+    .req-btn.deny {
+      border: 1.5px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .decision-deny:hover,
+    .decision-deny:focus-visible,
+    .req-btn.deny:hover,
+    .req-btn.deny:focus-visible {
+      background: var(--danger);
+      color: #FFFFFF;
+    }
+
+    .employee-table,
+    #employees-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .employee-row,
+    .emp-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1.2fr) minmax(110px, 0.7fr) minmax(180px, 1.1fr) minmax(112px, 0.7fr) minmax(90px, 0.55fr);
+      align-items: center;
+      gap: 16px;
+      min-height: 58px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #FFFFFF;
+      transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .employee-row:hover,
+    .emp-row:hover {
+      border-color: rgba(111,29,27,0.16);
+      background: var(--bg);
+      box-shadow: 0 2px 12px rgba(111,29,27,0.05);
+    }
+
+    .employee-row.table-head {
+      min-height: 34px;
+      border-color: transparent;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: none;
+    }
+
+    .employee-row .name,
+    .emp-name {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .employee-row .email,
+    .emp-email {
+      overflow: hidden;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .status-active::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      content: "";
+      box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+    }
+
+    #toast {
+      border-radius: 10px !important;
+      color: #FFFFFF !important;
+    }
+
+    #global-loader {
+      background: var(--burgundy) !important;
+    }
+
+    #loading-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(247,237,226,0.95);
+      backdrop-filter: blur(6px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; pointer-events: all;
+    }
+    #loading-overlay .spinner {
+      display: block;
+      width: 36px; height: 36px;
+      border: 3px solid #F2E4D4;
+      border-top-color: #6F1D1B;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-overlay .load-msg {
+      color: #6F1D1B; font-size: 13px;
+      font-weight: 600; letter-spacing: 0.5px;
+    }
+
+    #schedule-status-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(111,29,27,0.08);
+      background: white; flex-shrink: 0;
+    }
+    .status-badge {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .status-badge.published {
+      background: rgba(5,150,105,0.12);
+      color: #059669;
+    }
+    .status-badge.draft {
+      background: rgba(201,162,39,0.15);
+      color: #92400E;
+    }
+    .status-badge.none {
+      background: rgba(111,29,27,0.08);
+      color: #B8A99A;
+    }
+    #status-banner-text {
+      font-size: 13px; color: #8B7355;
+    }
+    .cross-loc-badge {
+      font-size: 10px; color: #C9A227;
+      padding: 2px 6px; margin-top: 4px;
+      background: rgba(201,162,39,0.10);
+      border-radius: 4px; display: inline-block;
+    }
+    .chip-scheduled-elsewhere {
+      border-color: rgba(201,162,39,0.4) !important;
+      background: rgba(201,162,39,0.04) !important;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-35%); opacity: 0.4; }
+      to { transform: translateX(35%); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        grid-template-columns: auto 1fr auto;
+        gap: 12px;
+      }
+
+      .tabs { justify-self: center; gap: 18px; }
+
+      .employee-row,
+      .emp-row {
+        grid-template-columns: minmax(150px, 1fr) minmax(90px, 0.6fr) minmax(140px, 0.9fr) minmax(100px, 0.6fr) minmax(84px, 0.5fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      body { overflow: auto; }
+
+      .topbar {
+        height: auto;
+        min-height: var(--topbar-h);
+        grid-template-columns: 1fr auto;
+        padding: 12px;
+      }
+
+      .tabs {
+        grid-column: 1 / -1;
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 22px;
+        padding-top: 8px;
+      }
+
+      .top-actions { gap: 8px; }
+      .select-shell { width: 112px; }
+      .location-select { font-size: 12px; }
+
+      .app { padding-top: 112px; }
+
+      .schedule-view { display: block; }
+      .staff-panel { display: none; }
+      .mobile-staff { display: flex; }
+      .schedule-area { overflow-x: auto; }
+
+      .schedule-grid {
+        grid-template-columns: repeat(7, minmax(150px, 1fr));
+        min-width: 1120px;
+        min-height: calc(100vh - 112px - var(--actionbar-h) - 56px);
+        padding: 16px;
+      }
+
+      .drop-zone { min-height: 340px; }
+
+      .action-bar {
+        position: sticky;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 16px 16px;
+      }
+
+      .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .button { width: 100%; }
+
+      .content-view {
+        height: auto;
+        min-height: calc(100vh - 112px);
+        padding: 22px 16px 30px;
+      }
+
+      .section-head { display: grid; }
+      .requests-list { grid-template-columns: 1fr; }
+
+      .employee-table,
+      #employees-list {
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+
+      .employee-row,
+      .emp-row { min-width: 760px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wordmark" aria-label="WOLFTEK">WOLF<span>TEK</span></div>
+
+    <nav class="tabs" aria-label="Dashboard views">
+      <button class="tab is-active" id="tab-schedule" type="button">Schedule</button>
+      <button class="tab" id="tab-requests" type="button">Requests</button>
+      <button class="tab" id="tab-employees" type="button">Employees</button>
+    </nav>
+
+    <div class="top-actions">
+      <div class="select-shell">
+        <select class="location-select" id="location-select" aria-label="Location">
+          <option value="Brooklyn">Brooklyn</option>
+          <option value="Ditmars">Ditmars</option>
+          <option value="UES">UES</option>
+        </select>
+      </div>
+      <button class="logout" id="btn-logout" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="view schedule-view" id="view-schedule">
+      <aside class="staff-panel" aria-label="Staff list">
+        <div class="staff-head">
+          <div class="eyebrow-row">
+            <p class="eyebrow">Staff</p>
+            <span class="note">Availability shown for current week</span>
+          </div>
+          <div class="week-nav" aria-label="Week navigation">
+            <button class="week-btn" id="btn-prev-week" type="button" aria-label="Previous week">&larr;</button>
+            <div class="week-label" id="week-label">May 19 - 25, 2026</div>
+            <button class="week-btn" id="btn-next-week" type="button" aria-label="Next week">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="employee-list" id="employee-list">
+          <article class="employee-card" draggable="true" data-emp-id="emp-001" data-employee-name="Maya Chen" data-role="Server">
+            <div class="employee-main">
+              <p class="employee-name">Maya Chen</p>
+              <span class="role-pill" style="--role-color: #2563EB;">Server</span>
+              <div class="availability" aria-label="Weekly availability">
+                <span class="dot open"></span><span class="dot open"></span><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot off"></span><span class="dot off"></span>
+              </div>
+            </div>
+            <div class="card-tools">
+              <span class="warning" title="Day off request this week">!</span>
+              <span class="drag-handle" aria-hidden="true">::</span>
+            </div>
+          </article>
+
+          <article class="employee-card" draggable="true" data-emp-id="emp-002" data-employee-name="Andre Russo" data-role="Bartender">
+            <div class="employee-main">
+              <p class="employee-name">Andre Russo</p>
+              <span class="role-pill" style="--role-color: #0891B2;">Bartender</span>
+              <div class="availability" aria-label="Weekly availability">
+                <span class="dot open"></span><span class="dot open"></span><span class="dot open"></span><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot"></span>
+              </div>
+            </div>
+            <div class="card-tools">
+              <span></span>
+              <span class="drag-handle" aria-hidden="true">::</span>
+            </div>
+          </article>
+
+          <article class="employee-card" draggable="true" data-emp-id="emp-003" data-employee-name="Sofia Bell" data-role="Host">
+            <div class="employee-main">
+              <p class="employee-name">Sofia Bell</p>
+              <span class="role-pill" style="--role-color: #059669;">Host</span>
+              <div class="availability" aria-label="Weekly availability">
+                <span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot open"></span><span class="dot off"></span><span class="dot open"></span><span class="dot open"></span>
+              </div>
+            </div>
+            <div class="card-tools">
+              <span></span>
+              <span class="drag-handle" aria-hidden="true">::</span>
+            </div>
+          </article>
+
+          <article class="employee-card" draggable="true" data-emp-id="emp-004" data-employee-name="Nico Marino" data-role="Cook">
+            <div class="employee-main">
+              <p class="employee-name">Nico Marino</p>
+              <span class="role-pill" style="--role-color: #D97706;">Cook</span>
+              <div class="availability" aria-label="Weekly availability">
+                <span class="dot open"></span><span class="dot off"></span><span class="dot open"></span><span class="dot open"></span><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span>
+              </div>
+            </div>
+            <div class="card-tools">
+              <span></span>
+              <span class="drag-handle" aria-hidden="true">::</span>
+            </div>
+          </article>
+        </div>
+      </aside>
+
+      <div class="mobile-staff" aria-label="Staff chips">
+        <button class="employee-chip" draggable="true" type="button" style="--role-color: #2563EB;">Maya Chen</button>
+        <button class="employee-chip" draggable="true" type="button" style="--role-color: #0891B2;">Andre Russo</button>
+        <button class="employee-chip" draggable="true" type="button" style="--role-color: #059669;">Sofia Bell</button>
+        <button class="employee-chip" draggable="true" type="button" style="--role-color: #D97706;">Nico Marino</button>
+      </div>
+
+      <section class="schedule-area" aria-label="Schedule calendar">
+        <div id="schedule-status-banner">
+          <span id="schedule-status-badge" class="status-badge none">No Schedule</span>
+          <span id="status-banner-text">Build the schedule by dragging staff to days</span>
+        </div>
+        <div class="schedule-grid" id="schedule-grid">
+          <article class="day-column">
+            <header class="day-head">Mon<span>19</span></header>
+            <div class="drop-zone" data-date="2026-05-19"></div>
+          </article>
+          <article class="day-column is-today">
+            <header class="day-head">Tue<span>20</span></header>
+            <div class="drop-zone" data-date="2026-05-20">
+              <article class="shift-card" style="--role-color: #0891B2;">
+                <button class="remove-shift" type="button" aria-label="Remove shift">&times;</button>
+                <p class="shift-name">Andre Russo</p>
+                <span class="role-pill" style="--role-color: #0891B2;">Bartender</span>
+                <div class="time-row">
+                  <input class="time-input" type="text" inputmode="numeric" value="17:00" aria-label="Shift start time">
+                  <span>&rarr;</span>
+                  <input class="time-input" type="text" inputmode="numeric" value="23:00" aria-label="Shift end time">
+                </div>
+              </article>
+            </div>
+          </article>
+          <article class="day-column">
+            <header class="day-head">Wed<span>21</span></header>
+            <div class="drop-zone" data-date="2026-05-21"></div>
+          </article>
+          <article class="day-column">
+            <header class="day-head">Thu<span>22</span></header>
+            <div class="drop-zone" data-date="2026-05-22">
+              <article class="shift-card" style="--role-color: #2563EB;">
+                <button class="remove-shift" type="button" aria-label="Remove shift">&times;</button>
+                <p class="shift-name">Maya Chen</p>
+                <span class="role-pill" style="--role-color: #2563EB;">Server</span>
+                <div class="time-row">
+                  <input class="time-input" type="text" inputmode="numeric" value="17:00" aria-label="Shift start time">
+                  <span>&rarr;</span>
+                  <input class="time-input" type="text" inputmode="numeric" value="23:00" aria-label="Shift end time">
+                </div>
+              </article>
+            </div>
+          </article>
+          <article class="day-column">
+            <header class="day-head">Fri<span>23</span></header>
+            <div class="drop-zone" data-date="2026-05-23"></div>
+          </article>
+          <article class="day-column">
+            <header class="day-head">Sat<span>24</span></header>
+            <div class="drop-zone" data-date="2026-05-24"></div>
+          </article>
+          <article class="day-column">
+            <header class="day-head">Sun<span>25</span></header>
+            <div class="drop-zone" data-date="2026-05-25"></div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="action-bar">
+        <div class="draft-status" id="draft-status">Draft saved locally</div>
+        <div class="action-buttons">
+          <button class="button button-outline" id="btn-save-draft" type="button">
+            <span class="spinner" aria-hidden="true"></span>
+            Save Draft
+          </button>
+          <button class="button button-gold" id="btn-publish" type="button">
+            <span class="spinner" aria-hidden="true"></span>
+            Publish Schedule
+          </button>
+        </div>
+      </footer>
+    </section>
+
+    <section class="view content-view" id="view-requests" hidden>
+      <div class="section-head">
+        <div class="title-group">
+          <h1>Day Off Requests</h1>
+          <p id="requests-location">Brooklyn</p>
+        </div>
+        <div class="filter-pills" aria-label="Request filters">
+          <button class="filter-pill is-active" type="button">All</button>
+          <button class="filter-pill" type="button">Pending</button>
+          <button class="filter-pill" type="button">Approved</button>
+          <button class="filter-pill" type="button">Denied</button>
+        </div>
+      </div>
+
+      <div class="requests-list" id="requests-list">
+        <article class="request-card">
+          <div class="request-top">
+            <div>
+              <p class="request-name">Maya Chen</p>
+              <span class="role-pill" style="--role-color: #2563EB;">Server</span>
+            </div>
+            <span class="status-badge status-pending">Pending</span>
+          </div>
+          <p class="date-range">May 22 - May 23</p>
+          <p class="reason">Family event out of town.</p>
+          <p class="submitted">Submitted May 12, 2026</p>
+          <div class="request-actions">
+            <button class="decision-btn decision-approve" type="button"><span class="spinner" aria-hidden="true"></span>&check; Approve</button>
+            <button class="decision-btn decision-deny" type="button"><span class="spinner" aria-hidden="true"></span>&times; Deny</button>
+          </div>
+        </article>
+
+        <article class="request-card">
+          <div class="request-top">
+            <div>
+              <p class="request-name">Nico Marino</p>
+              <span class="role-pill" style="--role-color: #D97706;">Cook</span>
+            </div>
+            <span class="status-badge status-approved">Approved</span>
+          </div>
+          <p class="date-range">May 25</p>
+          <p class="reason">Personal appointment.</p>
+          <p class="submitted">Submitted May 10, 2026</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="view content-view" id="view-employees" hidden>
+      <div class="section-head">
+        <div class="title-group">
+          <h1>Team - <span id="employees-location">Brooklyn</span></h1>
+          <p>Active staff, roles, and weekly availability.</p>
+        </div>
+      </div>
+
+      <div class="employee-table" id="employees-list">
+        <div class="employee-row table-head" aria-hidden="true">
+          <div>Name</div>
+          <div>Role</div>
+          <div>Email</div>
+          <div>Availability</div>
+          <div>Status</div>
+        </div>
+
+        <article class="employee-row">
+          <div class="name">Maya Chen</div>
+          <div><span class="role-pill" style="--role-color: #2563EB;">Server</span></div>
+          <div class="email">maya@bottegroup.com</div>
+          <div class="availability"><span class="dot open"></span><span class="dot open"></span><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot off"></span><span class="dot off"></span></div>
+          <div><span class="status-active">Active</span></div>
+        </article>
+
+        <article class="employee-row">
+          <div class="name">Andre Russo</div>
+          <div><span class="role-pill" style="--role-color: #0891B2;">Bartender</span></div>
+          <div class="email">andre@bottegroup.com</div>
+          <div class="availability"><span class="dot open"></span><span class="dot open"></span><span class="dot open"></span><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot"></span></div>
+          <div><span class="status-active">Active</span></div>
+        </article>
+
+        <article class="employee-row">
+          <div class="name">Sofia Bell</div>
+          <div><span class="role-pill" style="--role-color: #059669;">Host</span></div>
+          <div class="email">-</div>
+          <div class="availability"><span class="dot hours"></span><span class="dot open"></span><span class="dot open"></span><span class="dot open"></span><span class="dot off"></span><span class="dot open"></span><span class="dot open"></span></div>
+          <div><span class="status-active">Active</span></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.switchView = window.switchView || function switchView() {};
+    window.loadDashboard = window.loadDashboard || function loadDashboard() {};
+    window.handleLocationChange = window.handleLocationChange || function handleLocationChange() {};
+  </script>
+  <script src="api.js"></script>
+  <script src="scheduler.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

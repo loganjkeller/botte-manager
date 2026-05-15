@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOLFTEK Manager Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #08080D;
+      --gold: #C9A227;
+      --muted: #8B8FA8;
+      --white: #FFFFFF;
+      --danger: #FF5C6C;
+      --panel: rgba(255, 255, 255, 0.035);
+      --panel-strong: rgba(255, 255, 255, 0.06);
+      --gold-soft: rgba(201, 162, 39, 0.3);
+      --gold-glow: rgba(201, 162, 39, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(201, 162, 39, 0.105), transparent 28rem),
+        radial-gradient(circle at 20% 80%, rgba(139, 143, 168, 0.08), transparent 22rem),
+        var(--bg);
+      color: var(--white);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at center, black, transparent 72%);
+      animation: gridExit 0.6s ease forwards;
+      animation-delay: 2.5s;
+    }
+
+    body::after {
+      position: fixed;
+      z-index: 0;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      background: #F7EDE2;
+      opacity: 0;
+      animation: creamIntro 0.6s ease forwards;
+      animation-delay: 2.5s;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 32px;
+    }
+
+    .brand-lockup {
+      display: grid;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 18px rgba(201, 162, 39, 0.32));
+    }
+
+    .wordmark {
+      margin: 0;
+      color: var(--white);
+      font-size: clamp(38px, 8vw, 52px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: 6px;
+    }
+
+    .wordmark span {
+      color: var(--gold);
+    }
+
+    .subtitle {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      line-height: 1.45;
+      text-transform: uppercase;
+    }
+
+    .byline {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .splash {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      animation: splashExit 0.55s ease forwards;
+      animation-delay: 2.5s;
+    }
+
+    .splash .brand-lockup {
+      transform: scale(0);
+      opacity: 0;
+      animation: brandIntro 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .splash .subtitle {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeRise 0.72s ease forwards;
+      animation-delay: 0.5s;
+    }
+
+    .splash .byline {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeRise 0.72s ease forwards;
+      animation-delay: 0.8s;
+    }
+
+    .login {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      justify-items: center;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      animation: loginIntro 0.62s ease forwards;
+      animation-delay: 2.62s;
+    }
+
+    .login-card {
+      width: 90%;
+      max-width: 380px;
+      padding: 40px;
+      border-radius: 20px;
+      background: #FFFFFF;
+      box-shadow: 0 8px 40px rgba(111,29,27,0.10);
+      text-align: center;
+    }
+
+    .botte-mark {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 10px;
+      display: block;
+    }
+
+    .botte-wordmark {
+      margin: 0;
+      color: #6F1D1B;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .login-title {
+      margin: 20px 0 0;
+      color: #1F1B16;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .login-subtitle {
+      margin: 8px 0 24px;
+      color: #8B7355;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .login-form {
+      display: grid;
+      width: 100%;
+      justify-items: center;
+    }
+
+    .login-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .pin-wrap {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .pin-input {
+      width: 100%;
+      height: 54px;
+      padding: 14px 20px;
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      outline: none;
+      background: #F2E4D4;
+      color: #1F1B16;
+      caret-color: #6F1D1B;
+      font: 600 20px/1 Inter, system-ui, sans-serif;
+      letter-spacing: 6px;
+      text-align: center;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .pin-input:focus {
+      border-color: #6F1D1B;
+      outline: none;
+    }
+
+    .pin-input::placeholder {
+      color: rgba(31, 27, 22, 0.25);
+      letter-spacing: 6px;
+    }
+
+    .access-button {
+      width: 100%;
+      height: 52px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 12px;
+      background: #6F1D1B;
+      color: #FFFFFF;
+      cursor: pointer;
+      font: 600 15px/1 Inter, system-ui, sans-serif;
+      letter-spacing: 0;
+      text-transform: none;
+      box-shadow: none;
+      transition: all 0.2s ease;
+    }
+
+    .access-button:hover,
+    .access-button:focus-visible {
+      background: #4B1211;
+    }
+
+    .access-button:active {
+      transform: translateY(1px);
+    }
+
+    .error-message {
+      display: none;
+      min-height: 18px;
+      margin: 8px 0 0;
+      color: #DC2626;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .error-message.is-visible {
+      display: block;
+    }
+
+    .login-footer {
+      position: absolute;
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
+      margin: 0;
+      color: #C9A227;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      line-height: 1.4;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    @keyframes brandIntro {
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeRise {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes splashExit {
+      to {
+        opacity: 0;
+        transform: scale(0.985);
+        visibility: hidden;
+      }
+    }
+
+    @keyframes loginIntro {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+    }
+
+    @keyframes creamIntro {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes gridExit {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 1ms !important;
+        animation-delay: 1ms !important;
+        transition-duration: 1ms !important;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .screen {
+        padding: 24px;
+      }
+
+      .wordmark {
+        letter-spacing: 4px;
+      }
+
+      .subtitle {
+        max-width: 280px;
+        letter-spacing: 3px;
+      }
+
+      .login-card {
+        padding: 34px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="screen" aria-label="WOLFTEK Manager Dashboard login">
+    <section class="splash" aria-hidden="true">
+      <div class="brand-lockup">
+        <svg class="logo-mark" viewBox="0 0 40 40" role="img" aria-label="WOLFTEK logo mark">
+          <polygon points="20 2.5 35.2 11.25 35.2 28.75 20 37.5 4.8 28.75 4.8 11.25" fill="none" stroke="#C9A227" stroke-width="2"/>
+          <path d="M10.8 15.1 L14.7 25.2 L18.1 17.8 L21.9 25.2 L25.3 17.8 L29.2 25.2" fill="none" stroke="#FFFFFF" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1 class="wordmark">WOLF<span>TEK</span></h1>
+        <p class="subtitle">Manager Dashboard</p>
+        <p class="byline">By Wolf by Logan</p>
+      </div>
+    </section>
+
+    <section class="login" aria-labelledby="manager-code-label">
+      <div class="login-card">
+        <svg class="botte-mark" viewBox="0 0 60 60" role="img" aria-label="Botte barrel logo mark">
+          <rect x="14" y="8" width="32" height="44" rx="10" fill="none" stroke="#6F1D1B" stroke-width="2.5"/>
+          <path d="M17 22H43M16 30H44M17 38H43" fill="none" stroke="#6F1D1B" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="botte-wordmark">BOTTE</p>
+        <h1 class="login-title">Restaurant Manager</h1>
+        <p class="login-subtitle">Enter your access code to continue</p>
+
+        <form class="login-form" id="login-form" novalidate>
+          <label class="login-label" id="manager-code-label" for="manager-code">Enter Manager Code</label>
+          <div class="pin-wrap">
+            <input
+              class="pin-input"
+              id="manager-code"
+              name="manager-code"
+              type="password"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="10"
+              placeholder="••••"
+              aria-describedby="login-error"
+              required
+            >
+          </div>
+          <button class="access-button" type="submit">Access Dashboard</button>
+          <p class="error-message" id="login-error" role="alert" aria-live="polite"></p>
+        </form>
+      </div>
+      <p class="login-footer">Powered by WOLFTEK &middot; Wolf by Logan</p>
+    </section>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById("login-form");
+    const codeInput = document.getElementById("manager-code");
+    const errorMessage = document.getElementById("login-error");
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add("is-visible");
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const code = codeInput.value.trim();
+      errorMessage.textContent = "";
+      errorMessage.classList.remove("is-visible");
+
+      if (!code) {
+        showError("Manager code required.");
+        codeInput.focus();
+        return;
+      }
+
+      if (typeof checkAccess !== "function") {
+        showError("Access service unavailable.");
+        return;
+      }
+
+      try {
+        const hasAccess = await checkAccess(code);
+
+        if (hasAccess) {
+          sessionStorage.setItem("mgr_code", code);
+          window.location.href = "dashboard.html";
+          return;
+        }
+
+        showError("Invalid manager code.");
+        codeInput.select();
+      } catch (error) {
+        showError("Unable to verify access. Try again.");
+      }
+    });
+  </script>
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
