@@ -238,8 +238,14 @@
 
     .schedule-view {
       display: flex;
+      overflow: hidden;
       padding-bottom: var(--actionbar-h);
       background: var(--bg);
+    }
+
+    #view-schedule {
+      overflow: hidden;
+      display: flex;
     }
 
     .staff-panel {
@@ -470,7 +476,9 @@
     .schedule-area {
       flex: 1;
       min-width: 0;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       background: var(--bg);
     }
 
@@ -556,7 +564,9 @@
       flex: 1;
       flex-direction: column;
       gap: 12px;
-      min-height: 400px;
+      min-height: 200px;
+      max-height: 600px;
+      overflow-y: auto;
       margin: 10px;
       padding: 12px;
       border: 1.5px dashed rgba(111,29,27,0.15);
@@ -1096,7 +1106,7 @@
       }
     }
 
-    @media (max-width: 767px) {
+    @media (max-width: 768px) {
       body { overflow: auto; }
 
       .topbar {
@@ -1121,19 +1131,32 @@
 
       .app { padding-top: 112px; }
 
-      .schedule-view { display: block; }
+      #view-schedule,
+      .schedule-view {
+        display: flex;
+        flex-direction: column;
+      }
       .staff-panel { display: none; }
       .mobile-staff { display: flex; }
-      .schedule-area { overflow-x: auto; }
+      .schedule-area {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
 
-      .schedule-grid {
-        grid-template-columns: repeat(7, minmax(150px, 1fr));
-        min-width: 1120px;
+      #schedule-grid {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         min-height: calc(100vh - 112px - var(--actionbar-h) - 56px);
         padding: 16px;
       }
 
-      .drop-zone { min-height: 340px; }
+      .day-column {
+        min-width: 140px;
+        flex-shrink: 0;
+      }
 
       .action-bar {
         position: sticky;
