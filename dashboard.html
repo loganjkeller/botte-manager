@@ -1078,6 +1078,87 @@
       background: rgba(201,162,39,0.04) !important;
     }
 
+    .day-add-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; width: 100%; margin-top: 8px;
+      padding: 8px; border-radius: 8px; cursor: pointer;
+      border: 1.5px dashed rgba(111,29,27,0.2);
+      background: transparent; color: #B8A99A;
+      font-size: 12px; font-weight: 600;
+      transition: all 0.15s;
+    }
+    .day-add-btn:hover {
+      border-color: #6F1D1B;
+      color: #6F1D1B;
+      background: rgba(111,29,27,0.04);
+    }
+
+    #quick-add-popover {
+      position: fixed; z-index: 5000;
+      background: white; border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(111,29,27,0.18);
+      width: 280px; padding: 16px;
+      border: 1px solid rgba(111,29,27,0.1);
+      display: none;
+    }
+    #quick-add-popover.visible { display: block; }
+
+    #quick-add-search {
+      width: 100%; box-sizing: border-box;
+      padding: 10px 12px; border-radius: 8px;
+      border: 1.5px solid rgba(111,29,27,0.15);
+      font-size: 13px; color: #1F1B16;
+      background: #F7EDE2; outline: none;
+      margin-bottom: 10px;
+    }
+    #quick-add-search:focus { border-color: #6F1D1B; }
+
+    #quick-add-list {
+      max-height: 220px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .qa-emp-item {
+      padding: 10px 12px; border-radius: 8px;
+      cursor: pointer; display: flex;
+      flex-direction: column; gap: 4px;
+      transition: background 0.1s;
+    }
+    .qa-emp-item:hover { background: #F7EDE2; }
+    .qa-emp-name { font-size: 13px; font-weight: 600; color: #1F1B16; }
+    .qa-emp-role { font-size: 11px; color: #8B7355; }
+
+    #quick-add-role-select {
+      width: 100%; box-sizing: border-box;
+      padding: 8px 12px; border-radius: 8px;
+      border: 1.5px solid rgba(111,29,27,0.15);
+      background: #F7EDE2; color: #1F1B16;
+      font-size: 13px; margin-top: 8px;
+      display: none;
+    }
+
+    #quick-add-footer {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    #quick-add-cancel {
+      flex: 1; padding: 9px; border-radius: 8px;
+      border: 1px solid rgba(111,29,27,0.15);
+      background: white; color: #8B7355;
+      font-size: 13px; cursor: pointer;
+    }
+    #quick-add-confirm {
+      flex: 1; padding: 9px; border-radius: 8px;
+      border: none; background: #6F1D1B;
+      color: white; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+      display: none;
+    }
+    #quick-add-confirm:hover { background: #4B1211; }
+    #quick-add-popover-title {
+      font-size: 11px; font-weight: 600;
+      color: #B8A99A; letter-spacing: 0.8px;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -1459,6 +1540,18 @@
       </div>
     </section>
   </main>
+
+  <div id="quick-add-popover">
+    <div id="quick-add-popover-title">Add to schedule</div>
+    <input id="quick-add-search" type="text"
+      placeholder="Search employee..." autocomplete="off">
+    <div id="quick-add-list"></div>
+    <select id="quick-add-role-select"></select>
+    <div id="quick-add-footer">
+      <button id="quick-add-cancel">Cancel</button>
+      <button id="quick-add-confirm">Add Shift</button>
+    </div>
+  </div>
 
   <script>
     window.switchView = window.switchView || function switchView() {};

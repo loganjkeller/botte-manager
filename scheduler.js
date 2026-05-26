@@ -40,6 +40,11 @@ function renderCalendar(weekDates, existingShifts = []) {
   if (!grid) return;
 
   grid.innerHTML = "";
+  const quickAddPopover = document.getElementById("quick-add-popover");
+  if (quickAddPopover && !quickAddPopover.dataset.wired) {
+    initQuickAdd();
+    quickAddPopover.dataset.wired = "1";
+  }
   clearScheduleState();
 
   existingShifts.forEach((shift) => {
@@ -130,6 +135,14 @@ function createDayColumn(date, dateStr) {
   });
 
   col.appendChild(zone);
+  const addBtn = document.createElement("button");
+  addBtn.className = "day-add-btn";
+  addBtn.innerHTML = "+ Add Employee";
+  addBtn.addEventListener("click", function(e) {
+    e.stopPropagation();
+    openQuickAdd(dateStr, zone, addBtn);
+  });
+  col.appendChild(addBtn);
   return col;
 }
 
@@ -464,4 +477,152 @@ function escapeHtml(value) {
 
 function escapeForAttribute(value) {
   return escapeHtml(value).replace(/`/g, "&#096;");
+}
+
+// -- QUICK ADD -------------------------------------------------
+
+let _qaTargetDate = null;
+let _qaTargetZone = null;
+let _qaSelectedEmp = null;
+
+function initQuickAdd() {
+  const search = document.getElementById("quick-add-search");
+  const cancel = document.getElementById("quick-add-cancel");
+  const confirm = document.getElementById("quick-add-confirm");
+
+  if (!search || !cancel || !confirm) return;
+
+  search.addEventListener("input", function() {
+    renderQAList(this.value.trim());
+  });
+
+  cancel.addEventListener("click", closeQuickAdd);
+  confirm.addEventListener("click", confirmQuickAdd);
+
+  document.addEventListener("click", function(e) {
+    const pop = document.getElementById("quick-add-popover");
+    if (pop.classList.contains("visible") &&
+        !pop.contains(e.target) &&
+        !e.target.classList.contains("day-add-btn")) {
+      closeQuickAdd();
+    }
+  });
+}
+
+function openQuickAdd(dateStr, zone, btn) {
+  _qaTargetDate = dateStr;
+  _qaTargetZone = zone;
+  _qaSelectedEmp = null;
+
+  const pop = document.getElementById("quick-add-popover");
+  const search = document.getElementById("quick-add-search");
+  const roleSelect = document.getElementById("quick-add-role-select");
+  const confirm = document.getElementById("quick-add-confirm");
+
+  if (!pop || !search || !roleSelect || !confirm) return;
+
+  search.value = "";
+  roleSelect.style.display = "none";
+  confirm.style.display = "none";
+  renderQAList("");
+
+  const rect = btn.getBoundingClientRect();
+  const popWidth = 280;
+  let left = rect.left;
+  let top = rect.bottom + 6;
+
+  if (left + popWidth > window.innerWidth - 10) {
+    left = window.innerWidth - popWidth - 10;
+  }
+  if (top + 380 > window.innerHeight) {
+    top = rect.top - 380;
+  }
+
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+  pop.classList.add("visible");
+  search.focus();
+}
+
+function closeQuickAdd() {
+  const pop = document.getElementById("quick-add-popover");
+  if (pop) pop.classList.remove("visible");
+  _qaTargetDate = null;
+  _qaTargetZone = null;
+  _qaSelectedEmp = null;
+}
+
+function renderQAList(query) {
+  const list = document.getElementById("quick-add-list");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  const chips = document.querySelectorAll(
+    "#employee-list .employee-chip"
+  );
+  const q = query.toLowerCase();
+
+  let count = 0;
+  chips.forEach(function(chip) {
+    const name = (chip.dataset.empName || "").toLowerCase();
+    if (q && name.indexOf(q) === -1) return;
+    if (count >= 8) return;
+    count++;
+
+    const empName = chip.dataset.empName;
+    const empId = chip.dataset.empId;
+    const role = chip.dataset.role || "";
+
+    const item = document.createElement("div");
+    item.className = "qa-emp-item";
+    item.innerHTML =
+      '<div class="qa-emp-name">' + escapeHtml(empName) + "</div>" +
+      '<div class="qa-emp-role">' + escapeHtml(role) + "</div>";
+
+    item.addEventListener("click", function() {
+      list.querySelectorAll(".qa-emp-item").forEach(function(i) {
+        i.style.background = "";
+      });
+      item.style.background = "rgba(111,29,27,0.08)";
+
+      _qaSelectedEmp = { emp_id: empId, employee_name: empName, role: role };
+
+      const roles = role.split("/").map(function(r) { return r.trim(); })
+        .filter(function(r) { return r.length > 0; });
+
+      const roleSelect = document.getElementById("quick-add-role-select");
+      const confirm = document.getElementById("quick-add-confirm");
+
+      if (roles.length > 1) {
+        roleSelect.innerHTML = roles.map(function(r) {
+          return '<option value="' + escapeForAttribute(r) + '">' + escapeHtml(r) + "</option>";
+        }).join("");
+        roleSelect.style.display = "block";
+        _qaSelectedEmp.role = roles[0];
+        roleSelect.onchange = function() {
+          _qaSelectedEmp.role = roleSelect.value;
+        };
+      } else {
+        roleSelect.style.display = "none";
+        _qaSelectedEmp.role = role;
+      }
+
+      confirm.style.display = "block";
+    });
+
+    list.appendChild(item);
+  });
+
+  if (count === 0) {
+    list.innerHTML =
+      '<div style="padding:16px;text-align:center;' +
+      'color:#B8A99A;font-size:13px">No staff found</div>';
+  }
+}
+
+function confirmQuickAdd() {
+  if (!_qaSelectedEmp || !_qaTargetDate || !_qaTargetZone) return;
+  addShiftToDay(_qaTargetDate, _qaSelectedEmp, _qaTargetZone);
+  closeQuickAdd();
 }
