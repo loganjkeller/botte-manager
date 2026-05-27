@@ -115,25 +115,25 @@ function createDayColumn(date, dateStr) {
     if (!payload) return;
 
     try {
-      const data = JSON.parse(payload);
+      const emp = JSON.parse(payload);
       const date = _currentWeekDates.find((item) => formatWeekStart(item) === dateStr);
-      const status = date ? getEmpStatusForDate(data.emp_id, date) : "available";
+      const status = date ? getEmpStatusForDate(emp.emp_id, date) : "available";
 
       if (status === "off" || status === "dayoff") {
         const label = status === "dayoff" ? "day off request" : "marked as OFF";
         const ok = confirm(
-          `${data.employee_name} is ${label} on this day.\nAdd to schedule anyway?`
+          `${emp.employee_name} is ${label} on this day.\nAdd to schedule anyway?`
         );
 
         if (!ok) return;
       }
 
-      if (data.role && data.role.includes("/")) {
-        openDropRolePicker(dateStr, zone, data, event.clientX, event.clientY);
-        return;
+      const roles = emp.role ? emp.role.split("/") : [];
+      if (roles.length > 1) {
+        showDropRolePicker(emp, dateStr, zone, event.clientX, event.clientY);
+      } else {
+        addShiftToDay(dateStr, emp, zone);
       }
-
-      addShiftToDay(dateStr, data, zone);
     } catch (_) {
       return;
     }

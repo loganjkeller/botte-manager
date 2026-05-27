@@ -9,17 +9,79 @@ let requestsFilter = "all";
 let _pollInterval = null;
 let _autoSaveTimer = null;
 const _publishPhrases = [
-  "Aldo pettina le bambole...",
-  "Il sistema ci pensa...",
-  "Stiamo cucinando qualcosa...",
-  "Un attimo, controlliamo tutto...",
-  "Mandando i turni nell'universo...",
-  "Aspetta che finiamo il caffè...",
-  "Sincronizzando con le stelle...",
-  "Due secondi, promesso...",
+  'Aldo pettina le bambole...',
+  'Aldo sta contando i tovaglioli uno per uno...',
+  'Aldo ha perso le chiavi del frigo ancora...',
+  'Aldo discute con la stampante da 20 minuti...',
+  'Aldo sta misurando il sale a occhio...',
+  'Aldo ha bloccato il POS di nuovo...',
+  'Aldo si è addormentato sul pass...',
+  'Aldo sta negoziando con il fornitore di pasta...',
+  'Aldo ha ordinato 400 chili di farina per errore...',
+  'Aldo sta cercando il suo telefono sotto il bancone...',
+  'Aldo controlla il menu di tre settimane fa...',
+  'Aldo ha mandato il tavolo 4 al tavolo 7...',
+  'Aldo sta spiegando al cuoco come si fa il caffè...',
+  'Aldo ha dimenticato di aprire il locale...',
+  'Aldo sta facendo i conti sui tovaglioli...',
 ];
 
 let _phraseInterval = null;
+let _pendingDropEmp = null;
+let _pendingDropDate = null;
+let _pendingDropZone = null;
+
+function showDropRolePicker(emp, dateStr, zone, x, y) {
+  _pendingDropEmp = emp;
+  _pendingDropDate = dateStr;
+  _pendingDropZone = zone;
+
+  const picker = document.getElementById('drop-role-picker');
+  const options = document.getElementById('drop-role-options');
+  if (!picker || !options) return;
+
+  options.innerHTML = '';
+
+  const roles = emp.role.split('/').map(r => r.trim()).filter(Boolean);
+  roles.forEach(role => {
+    const btn = document.createElement('button');
+    btn.className = 'drop-role-btn';
+    btn.textContent = role;
+    btn.onclick = () => {
+      const empWithRole = Object.assign({}, _pendingDropEmp, { role });
+      addShiftToDay(_pendingDropDate, empWithRole, _pendingDropZone);
+      closeDropRolePicker();
+    };
+    options.appendChild(btn);
+  });
+
+  const w = 220;
+  let left = Math.min(x, window.innerWidth - w - 12);
+  let top = Math.min(y, window.innerHeight - (roles.length * 46 + 100));
+  picker.style.left = left + 'px';
+  picker.style.top = top + 'px';
+  picker.classList.add('visible');
+}
+
+function closeDropRolePicker() {
+  const picker = document.getElementById('drop-role-picker');
+  if (picker) picker.classList.remove('visible');
+  _pendingDropEmp = null;
+  _pendingDropDate = null;
+  _pendingDropZone = null;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cancel = document.getElementById('drop-role-cancel');
+  if (cancel) cancel.addEventListener('click', closeDropRolePicker);
+  document.addEventListener('click', e => {
+    const picker = document.getElementById('drop-role-picker');
+    if (picker && picker.classList.contains('visible') &&
+        !picker.contains(e.target)) {
+      closeDropRolePicker();
+    }
+  });
+});
 
 function showPublishOverlay() {
   const overlay = document.getElementById("publish-overlay");

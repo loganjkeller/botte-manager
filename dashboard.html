@@ -1159,6 +1159,56 @@
       text-transform: uppercase; margin-bottom: 10px;
     }
 
+    #drop-role-picker {
+      position: fixed;
+      z-index: 6000;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(111,29,27,0.2);
+      padding: 14px;
+      width: 220px;
+      border: 1px solid rgba(111,29,27,0.12);
+      display: none;
+    }
+    #drop-role-picker.visible { display: block; }
+    #drop-role-picker h4 {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #B8A99A;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .drop-role-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: #F7EDE2;
+      border: none;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6F1D1B;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .drop-role-btn:hover { background: #6F1D1B; color: white; }
+    .drop-role-btn:last-child { margin-bottom: 0; }
+    #drop-role-cancel {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      background: transparent;
+      border: 1px solid rgba(111,29,27,0.15);
+      border-radius: 8px;
+      font-size: 12px;
+      color: #B8A99A;
+      cursor: pointer;
+    }
+
     #publish-overlay {
       display: none;
       position: fixed;
@@ -1612,6 +1662,12 @@
     </div>
     <div id="publish-phrase">Aldo pettina le bambole...</div>
     <div id="publish-subtext">Publishing schedule</div>
+  </div>
+
+  <div id="drop-role-picker">
+    <h4>Select role for this shift</h4>
+    <div id="drop-role-options"></div>
+    <button id="drop-role-cancel">Cancel</button>
   </div>
 
   <script>
