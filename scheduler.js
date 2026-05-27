@@ -128,6 +128,11 @@ function createDayColumn(date, dateStr) {
         if (!ok) return;
       }
 
+      if (data.role && data.role.includes("/")) {
+        openDropRolePicker(dateStr, zone, data, event.clientX, event.clientY);
+        return;
+      }
+
       addShiftToDay(dateStr, data, zone);
     } catch (_) {
       return;
@@ -516,11 +521,16 @@ function openQuickAdd(dateStr, zone, btn) {
 
   const pop = document.getElementById("quick-add-popover");
   const search = document.getElementById("quick-add-search");
+  const list = document.getElementById("quick-add-list");
+  const title = document.getElementById("quick-add-popover-title");
   const roleSelect = document.getElementById("quick-add-role-select");
   const confirm = document.getElementById("quick-add-confirm");
 
-  if (!pop || !search || !roleSelect || !confirm) return;
+  if (!pop || !search || !list || !roleSelect || !confirm) return;
 
+  if (title) title.textContent = "Add to schedule";
+  search.style.display = "block";
+  list.style.display = "flex";
   search.value = "";
   roleSelect.style.display = "none";
   confirm.style.display = "none";
@@ -542,6 +552,63 @@ function openQuickAdd(dateStr, zone, btn) {
   pop.style.top = top + "px";
   pop.classList.add("visible");
   search.focus();
+}
+
+function openDropRolePicker(dateStr, zone, empData, x, y) {
+  _qaTargetDate = dateStr;
+  _qaTargetZone = zone;
+
+  const roles = empData.role.split("/").map(function(role) {
+    return role.trim();
+  }).filter(function(role) {
+    return role.length > 0;
+  });
+
+  _qaSelectedEmp = {
+    emp_id: empData.emp_id,
+    employee_name: empData.employee_name,
+    role: roles[0] || empData.role,
+  };
+
+  const pop = document.getElementById("quick-add-popover");
+  const title = document.getElementById("quick-add-popover-title");
+  const search = document.getElementById("quick-add-search");
+  const list = document.getElementById("quick-add-list");
+  const roleSelect = document.getElementById("quick-add-role-select");
+  const confirm = document.getElementById("quick-add-confirm");
+
+  if (!pop || !search || !list || !roleSelect || !confirm) {
+    addShiftToDay(dateStr, _qaSelectedEmp, zone);
+    return;
+  }
+
+  if (title) title.textContent = "Choose role";
+  search.style.display = "none";
+  list.style.display = "none";
+  roleSelect.innerHTML = roles.map(function(role) {
+    return '<option value="' + escapeForAttribute(role) + '">' + escapeHtml(role) + "</option>";
+  }).join("");
+  roleSelect.style.display = "block";
+  roleSelect.onchange = function() {
+    _qaSelectedEmp.role = roleSelect.value;
+  };
+  confirm.style.display = "block";
+
+  const popWidth = 280;
+  let left = x;
+  let top = y + 8;
+
+  if (left + popWidth > window.innerWidth - 10) {
+    left = window.innerWidth - popWidth - 10;
+  }
+  if (top + 220 > window.innerHeight) {
+    top = y - 220;
+  }
+
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+  pop.classList.add("visible");
+  roleSelect.focus();
 }
 
 function closeQuickAdd() {

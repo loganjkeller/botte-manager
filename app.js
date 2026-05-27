@@ -8,6 +8,47 @@ let currentView = "schedule";
 let requestsFilter = "all";
 let _pollInterval = null;
 let _autoSaveTimer = null;
+const _publishPhrases = [
+  "Aldo pettina le bambole...",
+  "Il sistema ci pensa...",
+  "Stiamo cucinando qualcosa...",
+  "Un attimo, controlliamo tutto...",
+  "Mandando i turni nell'universo...",
+  "Aspetta che finiamo il caffè...",
+  "Sincronizzando con le stelle...",
+  "Due secondi, promesso...",
+];
+
+let _phraseInterval = null;
+
+function showPublishOverlay() {
+  const overlay = document.getElementById("publish-overlay");
+  const phrase = document.getElementById("publish-phrase");
+  if (!overlay || !phrase) return;
+
+  overlay.classList.add("visible");
+  document.body.style.overflow = "hidden";
+
+  let idx = 0;
+  phrase.textContent = _publishPhrases[0];
+
+  _phraseInterval = setInterval(() => {
+    phrase.style.opacity = "0";
+    setTimeout(() => {
+      idx = (idx + 1) % _publishPhrases.length;
+      phrase.textContent = _publishPhrases[idx];
+      phrase.style.opacity = "1";
+    }, 400);
+  }, 2400);
+}
+
+function hidePublishOverlay() {
+  clearInterval(_phraseInterval);
+  _phraseInterval = null;
+  const overlay = document.getElementById("publish-overlay");
+  if (overlay) overlay.classList.remove("visible");
+  document.body.style.overflow = "";
+}
 
 function scheduleAutoSave() {
   clearTimeout(_autoSaveTimer);
@@ -349,11 +390,14 @@ async function handleSave(status) {
     const shifts = getScheduleAsShifts();
     const weekStr = formatWeekStart(currentWeekMonday);
 
+    if (status === "published") showPublishOverlay();
+
     const result = await saveSchedule(
       managerCode, currentLocation, weekStr, shifts, status);
 
     // Apps Script returns error string if overlap detected
     if (result && result.error) {
+      if (status === "published") hidePublishOverlay();
       showToast('⚠ ' + result.error, 'error');
       setButtonLoading(btn, false);
       return;
@@ -362,6 +406,7 @@ async function handleSave(status) {
     updateStatusBanner(status, status === "published" ? new Date().toISOString() : null);
 
     if (status === "published") {
+      hidePublishOverlay();
       setDraftStatus("Published", "#10B981");
       showToast("Schedule published! Employees will be notified.", "success");
     } else {
@@ -369,6 +414,7 @@ async function handleSave(status) {
       showToast("Draft saved.", "success");
     }
   } catch (error) {
+    if (status === "published") hidePublishOverlay();
     showToast(`Error: ${error.message}`, "error");
   } finally {
     setButtonLoading(btn, false);

@@ -1159,6 +1159,56 @@
       text-transform: uppercase; margin-bottom: 10px;
     }
 
+    #publish-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(10, 4, 4, 0.92);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    #publish-overlay.visible {
+      display: flex;
+    }
+    .publish-dots {
+      display: flex;
+      gap: 10px;
+    }
+    .publish-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #C9A227;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .publish-dot:nth-child(2) { animation-delay: 0.2s; }
+    .publish-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+    #publish-phrase {
+      color: #F7EDE2;
+      font-size: 18px;
+      font-weight: 600;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      text-align: center;
+      max-width: 340px;
+      min-height: 56px;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    #publish-subtext {
+      color: rgba(247,237,226,0.4);
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -1552,6 +1602,16 @@
       <button id="quick-add-cancel">Cancel</button>
       <button id="quick-add-confirm">Add Shift</button>
     </div>
+  </div>
+
+  <div id="publish-overlay">
+    <div class="publish-dots">
+      <div class="publish-dot"></div>
+      <div class="publish-dot"></div>
+      <div class="publish-dot"></div>
+    </div>
+    <div id="publish-phrase">Aldo pettina le bambole...</div>
+    <div id="publish-subtext">Publishing schedule</div>
   </div>
 
   <script>
